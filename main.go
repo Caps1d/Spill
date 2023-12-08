@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	//JSON marshall Go
 	http.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
 		// will output a simple html text line saying:
 		// "Welcome to /home"

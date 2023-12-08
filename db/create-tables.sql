@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS post (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(256) NOT NULL,
+    content TEXT NOT NULL,
+    userId INTEGER NOT NULL,
+    createdAt TIMESTAMP NOT NULL DEFAULT now()
+);
+
