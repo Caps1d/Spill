@@ -1,9 +1,10 @@
 package main
 
 import (
-	// "context"
+	"context"
 	"database/sql"
 	"encoding/json"
+
 	// "encoding/json"
 	"fmt"
 	"log"
@@ -83,6 +84,44 @@ func getPosts(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
 }
 
 func addPost(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
+	// retrieve the json obj
+	type Post struct {
+		Title   string
+		Content string
+		UserId  int
+	}
+
+	var p Post
+
+	// decode the requests body into our post struct declared as p
+	err := json.NewDecoder(r.Body).Decode(&p)
+
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Printf("Error decoding JSON: %s", err)
+		return
+	}
+
+	log.Printf("Received post: %v", p)
+
+	query := "INSERT INTO post (title, content, userid) VALUES ($1, $2, $3) Returning id;"
+
+	row := conn.QueryRowContext(context.Background(), query, p.Title, p.Content, p.UserId)
+
+	// since post table's pk is serial, its useful to keep track of the last
+	// inserted key
+	var insertedID int64
+
+	err = row.Scan(&insertedID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("No rows were inserted.")
+		} else {
+			log.Fatalf("Could not retrieve last inserted id: %s", err)
+		}
+	} else {
+		fmt.Printf("Inserted id: %d", insertedID)
+	}
 
 }
 
