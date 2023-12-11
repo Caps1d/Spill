@@ -22,6 +22,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Post struct {
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	UserId    int    `json:"userid"`
+	CreatedAt string `json:"createdat"`
+}
+
 // getPosts func
 func getPosts(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
 	// w.Write([]byte("Calling the db and getting the posts:\n"))
@@ -33,13 +40,6 @@ func getPosts(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
 		log.Printf("Error while getting rows from the db, err: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))
-	}
-
-	type Post struct {
-		Title     string `json:"title"`
-		Content   string `json:"content"`
-		UserId    int    `json:"userid"`
-		CreatedAt string `json:"createdat"`
 	}
 
 	// array to store posts
@@ -67,15 +67,17 @@ func getPosts(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
 	js, err := json.Marshal(posts)
 
 	if err != nil {
-		fmt.Printf("Error while composing json, err: %s", err)
+		log.Printf("Error while composing json, err: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error =("))
+		w.Write([]byte("Internal Server Error"))
 	}
 
 	js = append(js, '\n')
 
 	if err := rows.Err(); err != nil {
 		log.Printf("Could not retrieve the row, err = %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error"))
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -84,12 +86,6 @@ func getPosts(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
 }
 
 func addPost(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
-	// retrieve the json obj
-	type Post struct {
-		Title   string
-		Content string
-		UserId  int
-	}
 
 	var p Post
 
