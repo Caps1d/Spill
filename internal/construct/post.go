@@ -11,7 +11,7 @@ type Post struct {
 type PostService interface {
 	All() (*[]Post, error)
 	Get(id int64) (*Post, error)
-	Create(p *Post) error
+	Create(p *Post) (int64, error)
 	Delete(id int64) error
-	UserPosts(userId int64) (*[]Post, error)
+	// UserPosts(userId int64) (*[]Post, error)
 }
